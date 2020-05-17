@@ -20,6 +20,11 @@ export default new Router({
                     meta: { title: '系统首页' }
                 },
                 {
+                    path:'/commodity',
+                    component: resolve => require(['../components/page/commondity/list.vue'], resolve),
+                    meta:{title:"商品管理"}
+                },
+                {
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: { title: '自定义图标' }

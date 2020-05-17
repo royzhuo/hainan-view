@@ -10,14 +10,6 @@
               <div>{{role}}</div>
             </div>
           </div>
-          <div class="user-info-list">
-            上次登录时间：
-            <span>2018-01-01</span>
-          </div>
-          <div class="user-info-list">
-            上次登录地点：
-            <span>东莞</span>
-          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -27,8 +19,9 @@
 export default {
     name:"admin",
     data(){
+      let username = JSON.parse( localStorage.getItem("currentUser")).name;
         return {
-            name:localStorage.getItem("ms_username")
+            name:username
         }
     },
     computed: {

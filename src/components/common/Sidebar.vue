@@ -55,6 +55,11 @@ export default {
           index: "dashboard",
           title: "系统首页"
         },
+        {
+          icon: "el-icon-lx-home",
+          index: "commodity",
+          title: "商品管理"
+        },
         /* {
           icon: "el-icon-lx-cascades",
           index: "table",

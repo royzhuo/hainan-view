@@ -164,6 +164,7 @@ export default {
       return row.isable == "1" ? "正常" : "禁用";
     },
     getUsers() {
+      debugger;
       this.isShowloading = true;
       let params = {
         searchInfo: this.searchInfo.trim(),
@@ -176,6 +177,7 @@ export default {
       });
     },
     currentChange(val) {
+      debugger;
       this.pageNo = val;
       this.getUsers();
     },
