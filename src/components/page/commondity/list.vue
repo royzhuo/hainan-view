@@ -25,8 +25,9 @@
                   </el-option>
               </el-select>
               <el-button type="primary"  icon="el-icon-search" >搜索</el-button>
-              <el-button type="primary" >添加商品</el-button>
+              <el-button type="primary" @click="addCommondityVisible=true" >添加商品</el-button>
           </div>
+          <!--列表-->
           <el-table
                ref="multipleTable"
                tooltip-effect="dark"
@@ -97,6 +98,7 @@
                   </template>
               </el-table-column>
           </el-table>
+          <!--分页-->
           <div class="pagination">
               <el-pagination
                       @size-change="handleSizeChange"
@@ -108,6 +110,47 @@
               >
               </el-pagination>
           </div>
+          <!--新增窗口-->
+          <el-dialog title="添加商品" :visible.sync="addCommondityVisible" ref="addCommondityForm" v-dialogDrag>
+              <el-form :model="addCommondityForm" :rules="addCommondityRule">
+                  <el-form-item label="商品编号" :label-width="formLabelWidth" prop="itemNo">
+                      <el-input v-model="addCommondityForm.itemNo" autocomplete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="商品名称" :label-width="formLabelWidth" prop="name">
+                      <el-input v-model="addCommondityForm.name" autocomplete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="商品类型" :label-width="formLabelWidth" prop="commodityType">
+                      <el-input v-model="addCommondityForm.commodityType" autocomplete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="商品数量" :label-width="formLabelWidth">
+                      <el-input v-model="addCommondityForm.commodityNumber" autocomplete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="商品价格" :label-width="formLabelWidth">
+                      <el-input v-model="addCommondityForm.price" autocomplete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="商品规格" :label-width="formLabelWidth">
+                      <el-input v-model="addCommondityForm.specifications" autocomplete="off"></el-input>
+                  </el-form-item>
+                  <el-form-item label="商品描述" :label-width="formLabelWidth">
+                      <el-input type="textarea" :autosize="{ minRows: 3}" v-model="addCommondityForm.description"></el-input>
+                  </el-form-item>
+                  <el-form-item label="角色名称" :label-width="formLabelWidth" prop="rolename">
+                      <el-select v-model="addCommondityForm.itemNo">
+                          <el-option label="admin" value="admin"></el-option>
+                          <el-option label="管理员" value="管理员"></el-option>
+                          <el-option label="超级管理员" value="超级管理员"></el-option>
+                      </el-select>
+                  </el-form-item>
+                  <el-form-item label="状态" :label-width="formLabelWidth">
+                      <el-radio v-model="addCommondityForm.isable" label="1">正常</el-radio>
+                      <el-radio v-model="addCommondityForm.isable" label="0">禁用</el-radio>
+                  </el-form-item>
+              </el-form>
+              <div slot="footer" class="dialog-footer">
+                  <el-button @click="addCommondityVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="">确 定</el-button>
+              </div>
+          </el-dialog>
       </div>
   </div>
 </template>
@@ -124,6 +167,40 @@
                 pageNo: 1,
                 pageSize: 10,
                 total:0,
+                addCommondityVisible:false,//新建用户窗口
+                addCommondityForm:{
+                    itemNo:"",
+                    name:"",
+                    commodityType:"",
+                    commodityNumber:"",
+                    price:"",
+                    specifications:"",
+                    description:"",
+                    isable: "0"
+                },
+                addCommondityRule: {
+                    itemNo: [
+                        { required: true, message: "请输入商品编号", trigger: "blur" }
+                    ],
+                    name: [
+                        { required: true, message: "请输入商品名称", trigger: "blur" }
+                    ],
+                    commodityType: [
+                        { required: true, message: "请输入商品类型", trigger: "blur" }
+                    ],
+                    commodityNumber: [
+                        { required: true, message: "请输入商品数量", trigger: "blur" }
+                    ],
+                    price: [
+                        { required: true, message: "请输入商品价格", trigger: "blur" }
+                    ],
+                    specifications: [
+                        { required: true, message: "请输入商品规格", trigger: "blur" }
+                    ],
+                    description: [
+                        { required: true, message: "请输入商品描述", trigger: "blur" }
+                    ]
+                },
                 options: [{
                     value: '选项1',
                     label: '黄金糕'
@@ -140,6 +217,7 @@
                     value: '选项5',
                     label: '北京烤鸭'
                 }],
+                formLabelWidth: "120px",
                 value: ''
             }
         },
@@ -149,7 +227,6 @@
         methods:{
             loadDatas(){
                 getCommodityList(this.pageNo,this.pageSize,this.searchInfo,this.commodityType,res=>{
-                    debugger;
                     if (res.data.code=="0"){
                         this.commodities=res.data.data.list;
                         this.pageNo=res.data.data.pageNum;
