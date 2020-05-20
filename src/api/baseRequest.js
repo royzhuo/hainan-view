@@ -27,12 +27,32 @@ function baseRequest(interfaceUrl,param,method,callback) {
             callback(res);
         }
     })
+}
 
+function uploadFile(interfaceUrl,param,method,config,callback) {
+    if (!param instanceof FormData){
+        param=qs.stringify(param)
+    }
+    axios.post(baseUrl+interfaceUrl,param,config).then(res=>{
+        if (res.data==""||res.data.code=='5002'||res.data.code=='5003'||res.data.code=="401"){
+            if (res.data!=""){
+                Message.error(res.data.msg);
+            }
+            localStorage.removeItem("currentUser");
+            localStorage.removeItem("token");
+            router.push('/login');
+        }else{
+            callback(res);
+        }
+    })
 }
 
 function axiosBaseRequest(interfaceUrl,param,method,callback) {
     if (method=="POST"){
-        axios.post(baseUrl+interfaceUrl,qs.stringify(param)).then(res=>{
+/*        if (!param instanceof FormData){
+            param=qs.stringify(param)
+        }*/
+        axios.post(baseUrl+interfaceUrl,param).then(res=>{
             callback(res);
         })
     }
@@ -44,4 +64,4 @@ function axiosBaseRequest(interfaceUrl,param,method,callback) {
 }
 
 
-export {baseRequest}
+export {baseRequest,uploadFile}

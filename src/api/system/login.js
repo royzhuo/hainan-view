@@ -5,10 +5,7 @@ import {baseRequest} from "../baseRequest";
 
 function login(userName,passWord,callback) {
     let data={"userCode":userName,"password":passWord};
-   /* axios.post(baseUrl+"/manager/api/sysUser/login",qs.stringify(data)).then(res=>{
-        console.log('res=>',res);
-        callback(res);
-    })*/
+    data=qs.stringify(data)
    baseRequest("/manager/api/sysUser/login",data,"POST",res=>{
        callback(res);
     })
