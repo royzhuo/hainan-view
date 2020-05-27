@@ -136,7 +136,7 @@
                         <el-input type="textarea" :autosize="{ minRows: 3}"
                                   v-model="addCommondityForm.description"></el-input>
                     </el-form-item>
-                    <el-form-item label="商品缩略图" :label-width="formLabelWidth" prop="thumbnailFile">
+                    <el-form-item label="商品缩略图" ref="uploadThumbnailFileRef" :label-width="formLabelWidth" prop="thumbnailFile">
                         <el-upload
                                 action="http://localhost:9000/manager/api/commodity/uploadFile"
                                 list-type="picture-card"
@@ -183,11 +183,81 @@
                     <el-button type="primary" @click="submitUpload('addCommondityForm')">确 定</el-button>
                 </div>
             </el-dialog>
+            <!--查看详情-->
+            <Detail @getData="getData" :dialog-detail-visible="dialogDetailPicVisible" :detail-commondity-form="detailCommondityForm"></Detail>
+            <!--编辑窗口-->
+            <el-dialog title="编辑商品" :visible.sync="updateCommondityVisible" :close-on-click-modal="false"  v-dialogDrag>
+                <el-form :model="updateCommondityForm" :rules="addCommondityRule" ref="updateCommondityForm">
+                    <el-form-item label="商品编号" :label-width="formLabelWidth" prop="itemNo">
+                        <el-input v-model="updateCommondityForm.itemNo" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品名称" :label-width="formLabelWidth" prop="name">
+                        <el-input v-model="updateCommondityForm.name" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品类型" :label-width="formLabelWidth" prop="commodityType">
+                        <el-input v-model="updateCommondityForm.commodityType" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品数量" :label-width="formLabelWidth">
+                        <el-input v-model="updateCommondityForm.commodityNumber" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品价格" :label-width="formLabelWidth">
+                        <el-input v-model="updateCommondityForm.price" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品规格" :label-width="formLabelWidth">
+                        <el-input v-model="updateCommondityForm.specifications" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品描述" :label-width="formLabelWidth">
+                        <el-input type="textarea" :autosize="{ minRows: 3}"
+                                  v-model="updateCommondityForm.description"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品缩略图" :label-width="formLabelWidth" prop="thumbnailFile">
+                        <el-upload
+                                action="#"
+                                list-type="picture-card"
+                                :multiple="false"
+                                :limit="1"
+                                accept="image/*"
+                                :auto-upload="false"
+                                :file-list="updateCommondityForm.thumbnailFileList"
+                                :on-remove="handleThumbnailRemove"
+                                :on-change="thumbnailFileChange">
+                            <i slot="default" class="el-icon-plus"></i>
+                        </el-upload>
+                    </el-form-item>
+                    <el-form-item label="商品详情图" :label-width="formLabelWidth">
+                        <el-upload
+                                action="#"
+                                list-type="picture-card"
+                                :auto-upload="false"
+                                :on-preview="handlePictureCardPreview"
+                                :on-remove="handleDetailPicRemove"
+                                :on-change="detailPicChange"
+                                :file-list="updateCommondityForm.detailFileList"
+                        >
+                            <i class="el-icon-plus"></i>
+                        </el-upload>
+                        <el-dialog :visible.sync="dialogDetailPicVisible" append-to-body>
+                            <img width="100%" :src="dialogImageUrl" alt="">
+                        </el-dialog>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="updateCommondityVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="updateCommondity('updateCommondityForm')">确 定</el-button>
+                </div>
+            </el-dialog>
         </div>
     </div>
 </template>
 <script>
-    import {addCommodity, getCommodityList, uploadThumbnailFile} from "../../../api/commodity/commodity";
+    import {
+        addCommodity,
+        detailById,
+        getCommodityList,
+        updateCommodity,
+        uploadThumbnailFile
+    } from "../../../api/commodity/commodity";
+    import detail from "./detail";
 
     export default {
         data() {
@@ -208,9 +278,9 @@
                     commodityNumber: "",
                     price: "",
                     specifications: "",
-                    description: "",
-                    isable: "0"
-                },
+                    description: ""
+                },//添加商品模型
+                updateCommondityForm:{},//编辑商品模型
                 addCommondityRule: {
                     itemNo: [
                         {required: true, message: "请输入商品编号", trigger: "blur"}
@@ -254,7 +324,19 @@
                 files:[],
                 dialogVisible: false,
                 dialogDetailPicVisible: false,//商品详情图片遮罩
-                disabled: false
+                disabled: false,
+                detailCommondityForm:{
+                    itemNo: "",
+                    name: "",
+                    commodityType: "",
+                    commodityNumber: "",
+                    price: "",
+                    specifications: "",
+                    description: ""
+                },
+                dialogDetailVisible:false,
+                updateCommondityVisible:false //编辑窗口
+
             }
         },
         created() {
@@ -275,8 +357,50 @@
                 this.multipleSelection = val;
             },
             handleDetail(index, row) {
+                //商品详情
+                detailById(row.id,res=>{
+                    this.detailCommondityForm=res.data.data;
+                    this.dialogDetailPicVisible=true;
+                    if (this.detailCommondityForm.galleries!=null&&this.detailCommondityForm.galleries.length>0){
+                        for (let elem of this.detailCommondityForm.galleries.values()){
+                            if (elem.fileType=='1'){
+                                let thumbnailFileList=[{"name":elem.fileName,"url":elem.watchBaseUrl}];
+                                this.detailCommondityForm.thumbnailFileList=thumbnailFileList;
+                            }
+                            if (elem.fileType=='2'){
+                                let detailFileList=[{"name":elem.fileName,"url":elem.watchBaseUrl}];
+                                this.detailCommondityForm.detailFileList=detailFileList;
+                            }
+                        }
+                    }
+                })
+
+            },
+            getData(data){
+               //this.dialogDetailPicVisible=data;
+                this.dialogDetailPicVisible=false;
             },
             handleEdit(index, row) {
+                //商品编辑
+                this.updateCommondityVisible=true;
+                detailById(row.id,res=>{
+                    this.updateCommondityForm=res.data.data;
+                    if (this.updateCommondityForm.galleries!=null&&this.updateCommondityForm.galleries.length>0){
+                        let detailFileList=[];
+                        for (let elem of this.updateCommondityForm.galleries.values()){
+                            if (elem.fileType=='1'){
+                                let thumbnailFileList=[{"name":elem.fileName,"url":elem.watchBaseUrl,"id":elem.id}];
+                                this.updateCommondityForm.thumbnailFileList=thumbnailFileList;
+                            }
+                            if (elem.fileType=='2'){
+                                let detailFile={"name":elem.fileName,"url":elem.watchBaseUrl,"id":elem.id};
+                                detailFileList.push(detailFile);
+                            }
+                        }
+                        this.updateCommondityForm.detailFileList=detailFileList;
+                    }
+                })
+
             },
             handleDelete(index, row) {
             },
@@ -309,16 +433,60 @@
                 return isLt2M;
             },
             handlePictureCardPreview(file){
+                //放大查看详情图片
                 this.dialogImageUrl = file.url;
                 this.dialogDetailPicVisible = true;
             },
             handleThumbnailRemove(file, fileList) {
-                this.thumbnailFile='';
+                //缩略图片删除
+                if(this.updateCommondityForm!=null&&this.updateCommondityForm.id!=null){
+                    //编辑页面
+                    this.updateCommondityForm.thumbnailFileList=fileList;
+                }else{
+                    //添加页面
+                    this.thumbnailFile='';
+                }
+
             },
             handleDetailPicRemove(file, fileList) {
-                this.files=fileList;
+                //详情图片删除
+                if(this.updateCommondityForm!=null&&this.updateCommondityForm.id!=null){
+                    //编辑页面
+                    this.updateCommondityForm.detailFileList=fileList;
+                }else{
+                    //添加页面
+                    this.files=fileList;
+
+                }
+            },
+            thumbnailFileChange(file,fileList){
+                //选择缩略图
+                if(this.updateCommondityForm!=null&&this.updateCommondityForm.id!=null){
+                    //编辑页面
+                    debugger;
+                    this.updateCommondityForm.thumbnailFileList=fileList;
+                    this.$refs.updateCommondityForm.clearValidate();//关闭校验
+                }else{
+                    //添加页面
+                    this.thumbnailFile=file.raw;
+                    this.$refs.addCommondityForm.clearValidate();//关闭校验
+                }
+
+
+            },
+            detailPicChange(file, fileList){
+                //选择详情图片
+                if(this.updateCommondityForm!=null&&this.updateCommondityForm.id!=null){
+                    //编辑页面
+                    this.updateCommondityForm.detailFileList=fileList;
+                }else{
+                    //添加页面
+                    this.files=fileList;
+
+                }
             },
             submitUpload(addCommondityForm) {
+                //添加表单提交===先上传图片
                 this.$refs[addCommondityForm].validate((valid)=>{
                     if (valid){
                         console.log(this.addCommondityForm);
@@ -346,13 +514,8 @@
                     }
                 })
             },
-            thumbnailFileChange(file){
-                this.thumbnailFile=file.raw;
-            },
-            detailPicChange(file, fileList){
-                this.files=fileList;
-            },
             submitCommodityForm(addCommondityForm){
+                //提交添加表单
                 addCommodity(addCommondityForm,res=>{
                     if (res.data.code=='0'){
                         this.$message({
@@ -365,7 +528,76 @@
                         this.$message.error(res.data.msg);
                     }
                 })
+            },
+            updateCommondity(updateCommondityForm){
+                //编辑表单提交
+                this.$refs[updateCommondityForm].validate((valid)=>{
+                    if (!valid){
+                        if (this.updateCommondityForm.thumbnailFileList!=null&&this.updateCommondityForm.itemNo!=''&&
+                            this.updateCommondityForm.name!=""&&this.updateCommondityForm.commodityType!=""){
+                            this.$refs.updateCommondityForm.clearValidate();//关闭校验
+                        }else{
+                            return false;
+                        }
+                    }
+                    let localGalleries=[];
+                    if (this.updateCommondityForm.thumbnailFileList!=null&&this.updateCommondityForm.detailFileList.length>0){
+                        const fd = new FormData();
+                        console.log("-----:"+this.updateCommondityForm.thumbnailFileList[0].raw);
+                        if (this.updateCommondityForm.thumbnailFileList[0].raw!=null){
+                            fd.append('thumbnailFile', this.updateCommondityForm.thumbnailFileList[0].raw);
+                        }else{
+                            console.log("thumbnailFileList:"+this.updateCommondityForm.thumbnailFileList[0]);
+                            localGalleries.push(this.updateCommondityForm.thumbnailFileList[0]);
+                        }
+                        if (this.updateCommondityForm.detailFileList.length>0){
+                            for (let elem of this.updateCommondityForm.detailFileList.values()){
+                                if (elem.raw!=undefined){
+                                    fd.append("files",elem.raw,elem.raw.name);
+                                }else{
+                                    localGalleries.push(elem);
+                                }
+                            }
+                        }
+                        if (fd.get("thumbnailFile")==null&&fd.get("files")==null){
+                            this.commiteUpdateCommodityForm(this.updateCommondityForm)
+                        }else{
+                            uploadThumbnailFile(fd,res=>{
+                                if (res.data.code=="0"){
+                                    for (let elem of res.data.data.values()){
+                                        let detailFile=elem;
+                                        detailFile.commodityId=this.updateCommondityForm.id;
+                                        localGalleries.push(detailFile)
+                                    }
+                                    this.updateCommondityForm.galleries=localGalleries;
+                                    console.log(this.updateCommondityForm.galleries);
+                                    this.commiteUpdateCommodityForm(this.updateCommondityForm)
+                                }
+                            });
+                        }
+                    }else{
+                        this.commiteUpdateCommodityForm(this.updateCommondityForm)
+                    }
+                })
+            },
+            commiteUpdateCommodityForm(updateCommondityForm){
+                //表单提交
+                updateCommodity(updateCommondityForm,res=>{
+                    if (res.data.code=='0'){
+                        this.$message({
+                            message: res.data.msg,
+                            type: 'success'
+                        });
+                        this.loadDatas();
+                        this.updateCommondityVisible = false
+                    }else{
+                        this.$message.error(res.data.msg);
+                    }
+                })
             }
+        },
+        components:{
+            "Detail":detail
         }
     };
 
