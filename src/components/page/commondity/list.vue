@@ -12,12 +12,11 @@
                         type="danger"
                         icon="delete"
                         class="handle-del mr10"
+                        @click="batchDelete"
                 >批量删除
                 </el-button>
-                <el-input placeholder="商品名称" class="handle-input mr10"></el-input>
+                <el-input placeholder="商品名称" v-model="keyword" class="handle-input mr10"></el-input>
                 <el-select v-model="value" placeholder="商品类型" class="mr10">
-                    <!--<el-option label="水果" value="shanghai"></el-option>
-                    <el-option label="玩物" value="beijing"></el-option>-->
                     <el-option
                             v-for="item in options"
                             :key="item.value"
@@ -25,7 +24,7 @@
                             :value="item.value">
                     </el-option>
                 </el-select>
-                <el-button type="primary" icon="el-icon-search">搜索</el-button>
+                <el-button type="primary" @click="searchInfo" icon="el-icon-search">搜索</el-button>
                 <el-button type="primary" @click="addCommondityVisible=true">添加商品</el-button>
             </div>
             <!--列表-->
@@ -42,39 +41,52 @@
                         type="selection"
                         width="55">
                 </el-table-column>
+                <el-table-column label="商品缩撸图" align="center">
+                    　　<template slot-scope="scope">
+                    　　　　<img :src="scope.row.watchBaseUrl" width="100%" height="50" class="head_pic"/>
+                    　　</template>
+                </el-table-column>
                 <el-table-column
+                        align="center"
                         prop="itemNo"
                         label="商品编号"
                         width="120">
                 </el-table-column>
                 <el-table-column
+                        align="center"
                         prop="name"
                         label="商品名称"
                         width="120">
                 </el-table-column>
                 <el-table-column
+                        align="center"
                         prop="commodityType"
                         label="商品类别"
                         show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
+                        align="center"
                         prop="commodityNumber"
                         label="商品数量"
                         show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
+                        align="center"
                         prop="price"
                         label="商品价格"
                         show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
+                        align="center"
                         prop="specifications"
                         label="商品规格"
                         show-overflow-tooltip>
                 </el-table-column>
                 <el-table-column
+                        align="center"
+                        prop="createTime"
                         label="创建日期"
-                        width="120">
+                       >
                 </el-table-column>
                 <el-table-column label="操作" width="180" align="center">
                     <template slot-scope="scope">
@@ -105,8 +117,8 @@
                         @size-change="handleSizeChange"
                         @current-change="handleCurrentChange"
                         background
-                        layout="prev, pager, next, jumper"
-                        :total="this.total"
+                        layout="total,prev, pager, next, jumper"
+                        :total="total"
                         :page-size="this.pageSize"
                 >
                 </el-pagination>
@@ -138,33 +150,23 @@
                     </el-form-item>
                     <el-form-item label="商品缩略图" ref="uploadThumbnailFileRef" :label-width="formLabelWidth" prop="thumbnailFile">
                         <el-upload
+                                ref="addThumbnailUpload"
                                 action="http://localhost:9000/manager/api/commodity/uploadFile"
                                 list-type="picture-card"
                                 :multiple="false"
                                 :limit="1"
                                 accept="image/*"
                                 :auto-upload="false"
-                                :before-upload="beforeAvatarUpload"
                                 :on-remove="handleThumbnailRemove"
                                 :on-change="thumbnailFileChange">
                             <i slot="default" class="el-icon-plus"></i>
-                            <div slot="file" slot-scope="{file}">
-                                <img class="el-upload-list__item-thumbnail" :src="file.url" alt="">
-                                <span class="el-upload-list__item-actions">
-                                        <span v-if="!disabled" class="el-upload-list__item-delete" @click="handleThumbnailRemove(file)">
-                                          <i class="el-icon-delete"></i>
-                                        </span>
-                                </span>
-                            </div>
                         </el-upload>
-<!--                        <el-dialog :visible.sync="dialogVisible">
-                            <img width="100%" :src="dialogImageUrl" alt="">
-                        </el-dialog>-->
                     </el-form-item>
                     <!--商品详情图-->
                     <el-form-item label="商品详情图" :label-width="formLabelWidth">
                         <el-upload
                                 action="#"
+                                ref="addDetailFileUpload"
                                 list-type="picture-card"
                                 :auto-upload="false"
                                 :on-preview="handlePictureCardPreview"
@@ -251,7 +253,7 @@
 </template>
 <script>
     import {
-        addCommodity,
+        addCommodity, batchDelete, commondityTypes, deleteCommodity,
         detailById,
         getCommodityList,
         updateCommodity,
@@ -263,9 +265,9 @@
         data() {
             return {
                 isShowloading: false,
-                multipleSelection: [],
+                multipleSelection: [],//已选择的列表对象列表对象
                 commodities: [],//商品列表数据
-                searchInfo: "",
+                keyword: "",//搜索框关键字
                 commodityType: "",
                 pageNo: 1,
                 pageSize: 10,
@@ -307,18 +309,9 @@
                         {required: true, message: "请上传缩略图", trigger: "blur"}
                     ]
                 },
-                options: [{
-                    value: '选项1',
-                    label: '黄金糕'
-                }, {
-                    value: '选项2',
-                    label: '双皮奶'
-                }, {
-                    value: '选项3',
-                    label: '蚵仔煎'
-                }],
+                options: [],
                 formLabelWidth: "120px",
-                value: '',
+                value: '',//商品类型下拉框值
                 thumbnailFile:"",//缩略图
                 dialogImageUrl: '',//图片详情弹窗
                 files:[],
@@ -341,10 +334,13 @@
         },
         created() {
             this.loadDatas();
+            this.commodityTypes();
         },
         methods: {
             loadDatas() {
-                getCommodityList(this.pageNo, this.pageSize, this.searchInfo, this.commodityType, res => {
+                //商品列表加载
+                console.log("商品类型值:"+this.value);
+                getCommodityList(this.pageNo, this.pageSize, this.keyword, this.value, res => {
                     if (res.data.code == "0") {
                         this.commodities = res.data.data.list;
                         this.pageNo = res.data.data.pageNum;
@@ -352,6 +348,22 @@
                         this.total = res.data.data.total;
                     }
                 })
+            },
+            commodityTypes(){
+                //商品类型下拉框
+              commondityTypes(res=>{
+                  let initOption={"value":"all","label":"全部"};
+                  this.options.push(initOption);
+                  if (res.data.code=='0'){
+                      for (let elem of res.data.data.values()){
+                          let subOption={"value":elem,"label":elem};
+                          this.options.push(subOption);
+                      }
+                  }
+              })
+            },
+            searchInfo(){
+               this.loadDatas();
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
@@ -362,16 +374,18 @@
                     this.detailCommondityForm=res.data.data;
                     this.dialogDetailPicVisible=true;
                     if (this.detailCommondityForm.galleries!=null&&this.detailCommondityForm.galleries.length>0){
+                        let detailFileList=[];
                         for (let elem of this.detailCommondityForm.galleries.values()){
                             if (elem.fileType=='1'){
                                 let thumbnailFileList=[{"name":elem.fileName,"url":elem.watchBaseUrl}];
                                 this.detailCommondityForm.thumbnailFileList=thumbnailFileList;
                             }
                             if (elem.fileType=='2'){
-                                let detailFileList=[{"name":elem.fileName,"url":elem.watchBaseUrl}];
-                                this.detailCommondityForm.detailFileList=detailFileList;
+                                let detailFile={"name":elem.fileName,"url":elem.watchBaseUrl,"id":elem.id};
+                                detailFileList.push(detailFile);
                             }
                         }
+                        this.detailCommondityForm.detailFileList=detailFileList;
                     }
                 })
 
@@ -403,6 +417,35 @@
 
             },
             handleDelete(index, row) {
+                //删除商品
+                deleteCommodity(row.id,res=>{
+                    if (res.data.code=='0'){
+                        this.$message({
+                            message: res.data.msg,
+                            type: 'success'
+                        });
+                        this.loadDatas();
+                    }else{
+                        this.$message.error(res.data.msg);
+                    }
+                })
+            },
+            batchDelete(){
+                //批量删除
+                if (this.multipleSelection.length>0){
+                    let ids=[];
+                    for (let elem of this.multipleSelection.values()){
+                        ids.push(elem.id)
+                    }
+                    batchDelete(ids,res=>{
+                        debugger;
+                        if (res.data.code=='0'){
+                            this.loadDatas();
+                            this.commodityTypes();
+                            this.multipleSelection=[];
+                        }
+                    })
+                }
             },
             handleSizeChange(val) {
                 //pageSize 改变时会触发
@@ -415,22 +458,6 @@
                 this.pageNo = val;
                 this.loadDatas();
                 console.log(`当前页: ${val}`);
-            },
-            beforeAvatarUpload(file) {
-                debugger;
-                // 文件类型进行判断
-                const isJPG = file.type === "image/jpeg";
-                const isLt2M = file.size / 1024 / 1024 < 2;
-
-                if (!isJPG) {
-                    this.$message.error("上传头像图片只能是 JPG 格式!");
-
-                }
-                if (!isLt2M) {
-                    this.$message.error("上传头像图片大小不能超过 2MB!");
-                return isLt2M;
-                }
-                return isLt2M;
             },
             handlePictureCardPreview(file){
                 //放大查看详情图片
@@ -463,7 +490,6 @@
                 //选择缩略图
                 if(this.updateCommondityForm!=null&&this.updateCommondityForm.id!=null){
                     //编辑页面
-                    debugger;
                     this.updateCommondityForm.thumbnailFileList=fileList;
                     this.$refs.updateCommondityForm.clearValidate();//关闭校验
                 }else{
@@ -488,29 +514,29 @@
             submitUpload(addCommondityForm) {
                 //添加表单提交===先上传图片
                 this.$refs[addCommondityForm].validate((valid)=>{
-                    if (valid){
-                        console.log(this.addCommondityForm);
-                        if (this.thumbnailFile!=undefined&&this.thumbnailFile!=""&&this.files.length>0){
-                            const fd = new FormData();
-                            fd.append('thumbnailFile', this.thumbnailFile);
-                            if (this.files.length>0){
-                                for (let elem of this.files.values()){
-                                    fd.append("files",elem.raw,elem.raw.name);
-                                }
-                            }
-                            uploadThumbnailFile(fd,res=>{
-                                if (res.data.code=="0"){
-                                    let galleries=res.data.data;
-                                    this.addCommondityForm.galleries=galleries;
-                                    this.submitCommodityForm(this.addCommondityForm)
-                                }
-                            });
-                        }else{
-                            this.submitCommodityForm(this.addCommondityForm)
-                        }
-
+                    if (this.thumbnailFile!=null&&this.thumbnailFile!=""&&this.addCommondityForm.itemNo!=''&&
+                        this.addCommondityForm.name!=""&&this.addCommondityForm.commodityType!=""){
+                        this.$refs.addCommondityForm.clearValidate();//关闭校验
                     }else{
                         return false;
+                    }
+                    if ((this.thumbnailFile!=undefined&&this.thumbnailFile!="")||this.files.length>0){
+                        const fd = new FormData();
+                        fd.append('thumbnailFile', this.thumbnailFile);
+                        if (this.files.length>0){
+                            for (let elem of this.files.values()){
+                                fd.append("files",elem.raw,elem.raw.name);
+                            }
+                        }
+                        uploadThumbnailFile(fd,res=>{
+                            if (res.data.code=="0"){
+                                let galleries=res.data.data;
+                                this.addCommondityForm.galleries=galleries;
+                                this.submitCommodityForm(this.addCommondityForm)
+                            }
+                        });
+                    }else{
+                        this.submitCommodityForm(this.addCommondityForm)
                     }
                 })
             },
@@ -523,7 +549,13 @@
                             type: 'success'
                         });
                         this.loadDatas();
-                        this.addCommondityVisible = false
+                        this.commodityTypes();
+                        this.addCommondityVisible = false;
+                        this.thumbnailFile={};
+                        this.files=[];
+                        this.addCommondityForm={};
+                        this.$refs['addThumbnailUpload'].clearFiles();
+                        this.$refs['addDetailFileUpload'].clearFiles();
                     }else{
                         this.$message.error(res.data.msg);
                     }
@@ -543,11 +575,9 @@
                     let localGalleries=[];
                     if (this.updateCommondityForm.thumbnailFileList!=null&&this.updateCommondityForm.detailFileList.length>0){
                         const fd = new FormData();
-                        console.log("-----:"+this.updateCommondityForm.thumbnailFileList[0].raw);
                         if (this.updateCommondityForm.thumbnailFileList[0].raw!=null){
                             fd.append('thumbnailFile', this.updateCommondityForm.thumbnailFileList[0].raw);
                         }else{
-                            console.log("thumbnailFileList:"+this.updateCommondityForm.thumbnailFileList[0]);
                             localGalleries.push(this.updateCommondityForm.thumbnailFileList[0]);
                         }
                         if (this.updateCommondityForm.detailFileList.length>0){
@@ -570,7 +600,6 @@
                                         localGalleries.push(detailFile)
                                     }
                                     this.updateCommondityForm.galleries=localGalleries;
-                                    console.log(this.updateCommondityForm.galleries);
                                     this.commiteUpdateCommodityForm(this.updateCommondityForm)
                                 }
                             });
@@ -589,6 +618,7 @@
                             type: 'success'
                         });
                         this.loadDatas();
+                        this.commodityTypes();
                         this.updateCommondityVisible = false
                     }else{
                         this.$message.error(res.data.msg);
