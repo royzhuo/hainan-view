@@ -25,6 +25,11 @@ export default new Router({
                     meta:{title:"商品管理"}
                 },
                 {
+                    path:'/openUser',
+                    component: resolve => require(['../components/page/openUser/list.vue'], resolve),
+                    meta:{title:"微信用户管理"}
+                },
+                {
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: { title: '自定义图标' }

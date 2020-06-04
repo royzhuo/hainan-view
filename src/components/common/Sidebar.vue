@@ -60,6 +60,11 @@ export default {
           index: "commodity",
           title: "商品管理"
         },
+        {
+          icon: "el-icon-lx-home",
+          index: "openUser",
+          title: "微信用户管理"
+        },
         /* {
           icon: "el-icon-lx-cascades",
           index: "table",

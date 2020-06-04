@@ -264,7 +264,7 @@
     export default {
         data() {
             return {
-                isShowloading: false,
+                isShowloading: true,
                 multipleSelection: [],//已选择的列表对象列表对象
                 commodities: [],//商品列表数据
                 keyword: "",//搜索框关键字
@@ -341,6 +341,7 @@
                 //商品列表加载
                 console.log("商品类型值:"+this.value);
                 getCommodityList(this.pageNo, this.pageSize, this.keyword, this.value, res => {
+                    this.isShowloading=false;
                     if (res.data.code == "0") {
                         this.commodities = res.data.data.list;
                         this.pageNo = res.data.data.pageNum;
@@ -363,6 +364,7 @@
               })
             },
             searchInfo(){
+                this.isShowloading=true;
                this.loadDatas();
             },
             handleSelectionChange(val) {
@@ -438,11 +440,16 @@
                         ids.push(elem.id)
                     }
                     batchDelete(ids,res=>{
-                        debugger;
                         if (res.data.code=='0'){
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'success'
+                            });
                             this.loadDatas();
                             this.commodityTypes();
                             this.multipleSelection=[];
+                        }else{
+                            this.$message.error(res.data.msg);
                         }
                     })
                 }
