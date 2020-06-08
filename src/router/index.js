@@ -134,6 +134,26 @@ export default new Router({
                     meta: { title: '用户信息' }
                 },
                 {
+                    path: '/systemUser',
+                    component: resolve => require(['../components/page/sysmanager/systemUser.vue'], resolve),
+                    meta: { title: '用户管理' }
+                },
+                {
+                    path: '/systemRole',
+                    component: resolve => require(['../components/page/sysmanager/systemRole.vue'], resolve),
+                    meta: { title: '角色管理' }
+                },
+                {
+                    path: '/systemMenu',
+                    component: resolve => require(['../components/page/sysmanager/systemMenu.vue'], resolve),
+                    meta: { title: '菜单管理' }
+                },
+                {
+                    path: '/systemAuthorization',
+                    component: resolve => require(['../components/page/sysmanager/systemAuthorization.vue'], resolve),
+                    meta: { title: '权限管理' }
+                },
+                {
                     path: '/usermanager',
                     component: resolve => require(['../components/page/sysmanager/usermanager.vue'], resolve),
                     meta: { title: '用户管理' }

@@ -56,14 +56,37 @@ export default {
           title: "系统首页"
         },
         {
-          icon: "el-icon-lx-home",
+          icon: "el-icon-box",
           index: "commodity",
           title: "商品管理"
         },
         {
-          icon: "el-icon-lx-home",
+          icon: "el-icon-user",
           index: "openUser",
           title: "微信用户管理"
+        },
+        {
+          icon: "el-icon-setting",
+          index: "systemManager",
+          title: "系统管理",
+          subs:[
+            {
+              index: "systemUser",
+              title: "用户管理"
+            },
+            {
+              index: "systemRole",
+              title: "角色管理"
+            },
+            {
+              index: "systemMenu",
+              title: "菜单管理"
+            },
+            {
+              index: "systemAuthorization",
+              title: "权限管理"
+            },
+          ]
         },
         /* {
           icon: "el-icon-lx-cascades",

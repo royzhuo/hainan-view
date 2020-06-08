@@ -116,6 +116,47 @@
                     >
                     </el-pagination>
                 </div>
+                <!--用户页面-->
+                <el-dialog title="编辑人员信息" :visible.sync="updateOpenUserDialogVisible"  v-dialogDrag>
+                    <el-form :model="openUserForm"  ref="addOpenUserForm">
+                        <el-form-item label="头像地址" :label-width="formLabelWidth" >
+                            <el-input v-model="openUserForm.avatarurl" :disabled="true" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="用户名" :label-width="formLabelWidth" >
+                            <el-input v-model="openUserForm.name" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="昵称" :label-width="formLabelWidth">
+                            <el-input v-model="openUserForm.nickname" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="性别" :label-width="formLabelWidth" >
+                            <el-radio-group v-model="openUserForm.gallery" size="medium">
+                                <el-radio border label="1">男</el-radio>
+                                <el-radio border label="2">女</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item label="生日" :label-width="formLabelWidth" >
+                            <el-date-picker
+                                    v-model="openUserForm.birthday"
+                                    type="date"
+                                    value-format="yyyy-MM-dd"
+                                    placeholder="选择日期">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item label="国家" :label-width="formLabelWidth" >
+                            <el-input v-model="openUserForm.country" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="省份" :label-width="formLabelWidth" >
+                            <el-input v-model="openUserForm.province" autocomplete="off"></el-input>
+                        </el-form-item>
+                        <el-form-item label="城市" :label-width="formLabelWidth" >
+                            <el-input v-model="openUserForm.city" autocomplete="off"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer" class="dialog-footer">
+                        <el-button @click="updateOpenUserDialogVisible = false">取 消</el-button>
+                        <el-button type="primary" @click="submitUpdate('addOpenUserForm')">确 定</el-button>
+                    </div>
+                </el-dialog>
                 <!--编辑用户页面-->
                 <el-dialog title="编辑人员信息" :visible.sync="updateOpenUserDialogVisible"  v-dialogDrag>
                     <el-form :model="openUserForm"  ref="addOpenUserForm">
@@ -129,14 +170,12 @@
                             <el-input v-model="openUserForm.nickname" autocomplete="off"></el-input>
                         </el-form-item>
                         <el-form-item label="性别" :label-width="formLabelWidth" >
-<!--                            <el-input v-model="openUserForm.gallery" autocomplete="off"></el-input>-->
                             <el-radio-group v-model="openUserForm.gallery" size="medium">
                                 <el-radio border label="1">男</el-radio>
                                 <el-radio border label="2">女</el-radio>
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="生日" :label-width="formLabelWidth" >
-<!--                            <el-input v-model="openUserForm.birthday" autocomplete="off"></el-input>-->
                             <el-date-picker
                                     v-model="openUserForm.birthday"
                                     type="date"
