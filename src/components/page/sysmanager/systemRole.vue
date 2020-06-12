@@ -62,12 +62,14 @@
             <el-table-column label="操作" width="180" align="center">
                 <template slot-scope="scope">
                     <el-button
+                            title="编辑"
                             type="primary"
                             icon="el-icon-edit"
                             circle
                             @click="handleEdit(scope.$index, scope.row)"
                     ></el-button>
                     <el-button
+                            title="删除"
                             type="primary"
                             icon="el-icon-delete"
                             circle
@@ -229,6 +231,7 @@
                                 message: res.data.msg,
                                 type: 'success'
                             });
+                            this.systemRoleForm={};
                             this.addSystemRoleVisible=false;
                             this.loadList();
                         }else{
@@ -254,6 +257,7 @@
                                 message: res.data.msg,
                                 type: 'success'
                             });
+                            this.systemRoleForm={};
                             this.updateSystemRoleVisible=false;
                             this.loadList();
                         }else{
