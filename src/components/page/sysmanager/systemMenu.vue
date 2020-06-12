@@ -21,14 +21,14 @@
             </div>
         </div>
 
-        <!--列表-->
+        <!--列表  default-expand-all-->
         <el-table
                 ref="multipleTable"
                 tooltip-effect="dark"
                 :data="systemMenus"
                 row-key="id"
                 :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-                default-expand-all
+
                 style="width: 100%"
                 @selection-change="handleSelectionChange"
                 v-loading="isShowloading"
@@ -138,7 +138,17 @@
                     <el-input v-model="systemMenuForm.url" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="父级菜单" :label-width="formLabelWidth" >
-                    <el-input v-model="systemMenuForm.parentId" autocomplete="off"></el-input>
+<!--                    <el-input v-model="systemMenuForm.parentId" autocomplete="off"></el-input>-->
+                    <el-select v-model="systemMenuForm.parentId" filterable clearable placeholder="请选择">
+                        <el-option
+                                v-for="item in options"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                            <span style="float: left">{{ item.label }}</span>
+                            <span style="float: right; color: #8492a6; font-size: 13px">{{ item.url}}</span>
+                        </el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="菜单图标地址" :label-width="formLabelWidth">
                     <el-input v-model="systemMenuForm.icon" autocomplete="off"></el-input>
@@ -154,7 +164,13 @@
 </template>
 
 <script>
-    import {addSystemMenu, systemMenuList} from "../../../api/system/systemMenu";
+    import {
+        addSystemMenu,
+        batchDeleteSystemMenu,
+        deleteSystemMenu,
+        systemMenuList,
+        updateSystemMenu
+    } from "../../../api/system/systemMenu";
 
     export default {
         data(){
@@ -195,6 +211,7 @@
                     this.isShowloading=false;
                     if (res.data.code=='0'){
                         this.systemMenus=res.data.data;
+                        this.options=[];
                         for (let elem of this.systemMenus.values()){
                            this.options.push({"label":elem.menuName,"value":elem.id,"url":elem.url})
                         }
@@ -208,6 +225,17 @@
                     for (let elem of this.multipleSelection.values()){
                         ids.push(elem.id)
                     }
+                    batchDeleteSystemMenu(ids,res=>{
+                        if (res.data.code=='0'){
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'success'
+                            });
+                            this.loadList();
+                        }else{
+                            this.$message.error(res.data.msg);
+                        }
+                    })
                 }
             },
             handleSelectionChange(val){
@@ -226,6 +254,9 @@
                         return false;
                     }
                     this.systemMenuForm.menuResource=0;
+                    if (this.systemMenuForm.parentId==null||this.systemMenuForm.parentId==""){
+                        this.systemMenuForm.parentId='0';
+                    }
                    addSystemMenu(this.systemMenuForm,res=>{
                        if (res.data.code=='0'){
                            this.$message({
@@ -233,6 +264,7 @@
                                type: 'success'
                            });
                            this.loadList();
+                           this.systemMenuForm={};
                            this.addSystemMenuVisible=false;
                        }else{
                            this.$message.error(res.data.msg);
@@ -251,10 +283,38 @@
                     if (!valid){
                         return false;
                     }
+                    if (this.systemMenuForm.parentId==null||this.systemMenuForm.parentId==""){
+                        this.systemMenuForm.parentId='0';
+                    }
+                    updateSystemMenu(this.systemMenuForm,res=>{
+                        if (res.data.code=='0'){
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'success'
+                            });
+                            this.loadList();
+                            this.systemMenuForm={};
+                            this.updateSystemMenuVisible=false;
+                        }else{
+                            this.$message.error(res.data.msg);
+                        }
+                    })
+
                 })
             },
             handleDelete(index, row) {
                 //删除
+                deleteSystemMenu(row.id,res=>{
+                    if (res.data.code=='0'){
+                        this.$message({
+                            message: res.data.msg,
+                            type: 'success'
+                        });
+                        this.loadList();
+                    }else{
+                        this.$message.error(res.data.msg);
+                    }
+                })
             }
         }
     }
