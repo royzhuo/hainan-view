@@ -316,7 +316,7 @@
                             message: res.data.msg,
                             type: 'success'
                         });
-                        this.updateSystemUserVisible=false;
+                        //this.updateSystemUserVisible=false;
                         this.loadList();
                     }else{
                         this.$message.error(res.data.msg);

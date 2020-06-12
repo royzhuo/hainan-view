@@ -2,7 +2,7 @@ import {baseRequest,uploadFile} from "../baseRequest";
 import qs from 'qs';
 
 function systemUserList(pageNo,pageSize,keyword,callback) {
-    //获取微信用户列表
+    //获取系统用户列表
     let params={"pageSize":pageSize,"pageIndex":pageNo};
     if (Object.keys(keyword).length>0){
         params.name=keyword;
