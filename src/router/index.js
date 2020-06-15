@@ -7,7 +7,8 @@ export default new Router({
     routes: [
         {
             path: '/',
-            redirect: '/dashboard'
+            // redirect: '/dashboard'
+            redirect: '/commodity'
         },
         {
             path: '/',
@@ -151,7 +152,7 @@ export default new Router({
                 {
                     path: '/systemAuthorization',
                     component: resolve => require(['../components/page/sysmanager/systemAuthorization.vue'], resolve),
-                    meta: { title: '权限管理' }
+                    meta: { title: '菜单权限管理' }
                 },
                 {
                     path: '/usermanager',

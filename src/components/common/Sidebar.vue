@@ -50,11 +50,11 @@ export default {
       collapse: false,
       menuItems: [],
       items: [
-        {
+/*        {
           icon: "el-icon-lx-home",
           index: "dashboard",
           title: "系统首页"
-        },
+        },*/
         {
           icon: "el-icon-box",
           index: "commodity",
@@ -84,7 +84,7 @@ export default {
             },
             {
               index: "systemAuthorization",
-              title: "权限管理"
+              title: "菜单权限管理"
             },
           ]
         },
@@ -93,7 +93,7 @@ export default {
           index: "table",
           title: "基础表格"
         }, */
-        {
+       /* {
           icon: "el-icon-lx-copy",
           index: "tabs",
           title: "tab选项卡"
@@ -193,14 +193,14 @@ export default {
               title: "404页面"
             }
           ]
-        }
+        }*/
       ]
     };
   },
   methods: {
     getMenuData(menuName) {
       let menuData = [];
-      getSysmenu().then(
+/*      getSysmenu().then(
         function(data) {
           let data1 = data.data.menuArr;
           data1.forEach((val,index) => {
@@ -225,7 +225,7 @@ export default {
             i++;
           });
         }.bind(this)
-      );
+      );*/
     }
   },
   computed: {

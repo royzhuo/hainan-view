@@ -124,7 +124,7 @@
                 </el-pagination>
             </div>
             <!--新增窗口-->
-            <el-dialog title="添加商品" :visible.sync="addCommondityVisible"  v-dialogDrag>
+            <el-dialog title="添加商品" :before-close="handleClose" :visible.sync="addCommondityVisible"  v-dialogDrag>
                 <el-form :model="addCommondityForm" :rules="addCommondityRule" ref="addCommondityForm">
                     <el-form-item label="商品编号" :label-width="formLabelWidth" prop="itemNo">
                         <el-input v-model="addCommondityForm.itemNo" autocomplete="off"></el-input>
@@ -186,9 +186,61 @@
                 </div>
             </el-dialog>
             <!--查看详情-->
-            <Detail @getData="getData" :dialog-detail-visible="dialogDetailPicVisible" :detail-commondity-form="detailCommondityForm"></Detail>
+            <el-dialog :before-close="handleClose"  title="商品详情" :visible.sync="dialogShopDetailVisible"  v-dialog-drag>
+                <el-form :model="detailCommondityForm" ref="detailCommondityForm">
+                    <el-form-item label="商品编号" :label-width="formLabelWidth">
+                        <el-input v-model="detailCommondityForm.itemNo" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品名称" :label-width="formLabelWidth">
+                        <el-input v-model="detailCommondityForm.name" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品类型" :label-width="formLabelWidth" >
+                        <el-input v-model="detailCommondityForm.commodityType" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品数量" :label-width="formLabelWidth">
+                        <el-input v-model="detailCommondityForm.commodityNumber" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品价格" :label-width="formLabelWidth">
+                        <el-input v-model="detailCommondityForm.price" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品规格" :label-width="formLabelWidth">
+                        <el-input v-model="detailCommondityForm.specifications" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品描述" :label-width="formLabelWidth">
+                        <el-input type="textarea" :autosize="{ minRows: 3}"
+                                  v-model="detailCommondityForm.description"></el-input>
+                    </el-form-item>
+                    <el-form-item label="商品缩略图" :label-width="formLabelWidth">
+                        <el-upload
+                                action="#"
+                                list-type="picture-card"
+                                :disabled="true"
+                                :auto-upload="false"
+                                :file-list="detailCommondityForm.thumbnailFileList"
+                        >
+                            <i class="el-icon-plus"></i>
+                        </el-upload>
+                    </el-form-item>
+                    <el-form-item label="商品详情图片" :label-width="formLabelWidth">
+                        <el-upload
+                                action="#"
+                                list-type="picture-card"
+                                :auto-upload="false"
+                                :disabled="true"
+                                :file-list="detailCommondityForm.detailFileList"
+                                :on-preview="handlePictureCardPreview"
+                                :on-change="detailPicChange"
+                        >
+                            <i class="el-icon-plus"></i>
+                        </el-upload>
+                        <el-dialog :visible.sync="dialogDetailPicVisible" append-to-body>
+                            <img width="100%" :src="dialogImageUrl" alt="">
+                        </el-dialog>
+                    </el-form-item>
+                </el-form>
+            </el-dialog>
             <!--编辑窗口-->
-            <el-dialog title="编辑商品" :visible.sync="updateCommondityVisible" :close-on-click-modal="false"  v-dialogDrag>
+            <el-dialog title="编辑商品" :before-close="handleClose" :visible.sync="updateCommondityVisible" :close-on-click-modal="false"  v-dialogDrag>
                 <el-form :model="updateCommondityForm" :rules="addCommondityRule" ref="updateCommondityForm">
                     <el-form-item label="商品编号" :label-width="formLabelWidth" prop="itemNo">
                         <el-input v-model="updateCommondityForm.itemNo" autocomplete="off"></el-input>
@@ -319,15 +371,9 @@
                 dialogDetailPicVisible: false,//商品详情图片遮罩
                 disabled: false,
                 detailCommondityForm:{
-                    itemNo: "",
-                    name: "",
-                    commodityType: "",
-                    commodityNumber: "",
-                    price: "",
-                    specifications: "",
-                    description: ""
                 },
                 dialogDetailVisible:false,
+                dialogShopDetailVisible:false,
                 updateCommondityVisible:false //编辑窗口
 
             }
@@ -339,7 +385,6 @@
         methods: {
             loadDatas() {
                 //商品列表加载
-                console.log("商品类型值:"+this.value);
                 getCommodityList(this.pageNo, this.pageSize, this.keyword, this.value, res => {
                     this.isShowloading=false;
                     if (res.data.code == "0") {
@@ -353,6 +398,7 @@
             commodityTypes(){
                 //商品类型下拉框
               commondityTypes(res=>{
+                  this.options=[];
                   let initOption={"value":"all","label":"全部"};
                   this.options.push(initOption);
                   if (res.data.code=='0'){
@@ -373,8 +419,8 @@
             handleDetail(index, row) {
                 //商品详情
                 detailById(row.id,res=>{
+                    this.dialogShopDetailVisible=true;
                     this.detailCommondityForm=res.data.data;
-                    this.dialogDetailPicVisible=true;
                     if (this.detailCommondityForm.galleries!=null&&this.detailCommondityForm.galleries.length>0){
                         let detailFileList=[];
                         for (let elem of this.detailCommondityForm.galleries.values()){
@@ -390,11 +436,13 @@
                         this.detailCommondityForm.detailFileList=detailFileList;
                     }
                 })
-
             },
-            getData(data){
-               //this.dialogDetailPicVisible=data;
+            handleClose(done) {
+                this.dialogShopDetailVisible=false;
                 this.dialogDetailPicVisible=false;
+                this.updateCommondityVisible=false;
+                done();
+
             },
             handleEdit(index, row) {
                 //商品编辑
@@ -420,6 +468,7 @@
             },
             handleDelete(index, row) {
                 //删除商品
+                this.isShowloading=true;
                 deleteCommodity(row.id,res=>{
                     if (res.data.code=='0'){
                         this.$message({
@@ -427,6 +476,7 @@
                             type: 'success'
                         });
                         this.loadDatas();
+                        this.commodityTypes();
                     }else{
                         this.$message.error(res.data.msg);
                     }
@@ -434,6 +484,7 @@
             },
             batchDelete(){
                 //批量删除
+                this.isShowloading=true;
                 if (this.multipleSelection.length>0){
                     let ids=[];
                     for (let elem of this.multipleSelection.values()){
@@ -461,7 +512,6 @@
             },
             handleCurrentChange(val) {
                 //currentPage 改变时会触发
-                debugger;
                 this.pageNo = val;
                 this.loadDatas();
                 console.log(`当前页: ${val}`);
