@@ -3,7 +3,7 @@
     productionSourceMap: false,
     devServer: {
         port:9200,
-        proxy: {
+/*        proxy: {
             '/api':{
                 target:'http://jsonplaceholder.typicode.com',
                 changeOrigin:true,
@@ -22,6 +22,6 @@
                 target: 'https://www.easy-mock.com/mock/592501a391470c0ac1fab128',
                 changeOrigin: true
             }
-        }
+        }*/
     }
 }
