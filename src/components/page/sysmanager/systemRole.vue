@@ -357,6 +357,7 @@
                             for (let elem of res.data.data.values()){
                                 this.menuDefaultCheckedKeys.push(elem.id);
                             }
+                            debugger;
                             this.$nextTick(() => {
                                 this.$refs.tree.setCheckedKeys(this.menuDefaultCheckedKeys) // CheckedArr 一个选中的数组element Ui的东西，关键是看$nextTick的用法
                             });
