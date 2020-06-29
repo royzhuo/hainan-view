@@ -7,7 +7,9 @@
             <img src="../../assets/img/img.jpg" class="user-avator" alt>
             <div class="user-info-cont">
               <div class="user-info-name">{{name}}</div>
-              <div>{{role}}</div>
+              <div>{{currentSystemUser.userCode}}</div>
+              <div>{{sex}}</div>
+              <div>{{systemUserRole}}</div>
             </div>
           </div>
         </el-card>
@@ -17,16 +19,28 @@
 </template>
 <script>
 export default {
-    name:"admin",
     data(){
-      let username = JSON.parse( localStorage.getItem("currentUser")).name;
+        let username = JSON.parse( localStorage.getItem("currentSystemUser")).name;
+        let currentSystemUser=JSON.parse(localStorage.getItem("currentSystemUser"));
+        let roleNames="";
+        if (currentSystemUser.systemRoles!=null&&currentSystemUser.systemRoles.length>0){
+          for (let elem of currentSystemUser.systemRoles.values()){
+            if (roleNames==""){
+              roleNames=elem.name;
+            }else{
+              roleNames+=","+elem.name;
+            }
+          }
+        }
         return {
-            name:username
+            name:username,
+            currentSystemUser:currentSystemUser,
+            systemUserRole:roleNames
         }
     },
     computed: {
-            role() {
-                return this.name === 'admin' ? '超级管理员' : '普通用户';
+            sex(){
+              return this.currentSystemUser.sex === 0 ? "男" : this.currentSystemUser.sex === 1 ? "女":"未知"
             }
         },
 }

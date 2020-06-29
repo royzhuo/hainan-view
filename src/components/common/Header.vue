@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     username() {
-      let username = JSON.parse( localStorage.getItem("currentUser")).name;
+      let username = JSON.parse( localStorage.getItem("currentSystemUser")).name;
       return username ? username : this.name;
     },
     ...mapGetters('dailog',{

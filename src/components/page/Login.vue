@@ -53,7 +53,7 @@
                                 if (res.data.code=='0'){
                                     localStorage.setItem("token",res.data.data.token);
                                     localStorage.setItem('ms_username',this.ruleForm.username);
-                                    localStorage.setItem("currentUser",JSON.stringify(res.data.data.systemUser));
+                                    localStorage.setItem("currentSystemUser",JSON.stringify(res.data.data.currentSystemUser));
                                     this.$router.push('/');
                                 }else{
                                     this.$message.error(res.data.msg);
