@@ -76,12 +76,21 @@
             <el-table-column label="操作" width="180" align="center">
                 <template slot-scope="scope">
                     <el-button
+                            title="初始化密码"
+                            type="primary"
+                            icon="el-icon-refresh-right"
+                            circle
+                            @click="handleInitPassword(scope.$index, scope.row)"
+                    ></el-button>
+                    <el-button
+                            title="编辑"
                             type="primary"
                             icon="el-icon-edit"
                             circle
                             @click="handleEdit(scope.$index, scope.row)"
                     ></el-button>
                     <el-button
+                            title="删除"
                             type="primary"
                             icon="el-icon-delete"
                             circle
@@ -158,7 +167,7 @@
     import {
         addSystemUser,
         batchDeleteSystemUser,
-        deleteSystemUser,
+        deleteSystemUser, initPassword,
         systemUserList,
         updateSystemUser
     } from "../../../api/system/systemUser";
@@ -279,6 +288,31 @@
                 this.systemUserForm={};
                 done();
             },
+            handleInitPassword(index,row){
+                this.isShowloading=true;
+                //初始化密码
+                initPassword(row.id,res=>{
+                    if (res.data.code=="0"){
+                        if (res.data.data!=null&&res.data.data!=""){
+                            this.$message({
+                                message: "操作成功,需重新登录当前用户！",
+                                type: 'success'
+                            });
+                            localStorage.removeItem("currentUser");
+                            localStorage.removeItem("token");
+                            this.$router.push("/login");
+                        }else{
+                            this.$message({
+                                message: res.data.msg,
+                                type: 'success'
+                            });
+                            this.loadList();
+                        }
+                    }else{
+                        this.$message.error(res.data.msg);
+                    }
+                })
+            },
             handleEdit(index, row){
                 //编辑
                 this.systemUserForm=row;
@@ -296,12 +330,24 @@
                     this.systemUserForm.isblack=this.isblack;
                     updateSystemUser(this.systemUserForm,res=>{
                         if (res.data.code=='0'){
-                            this.$message({
-                                message: res.data.msg,
-                                type: 'success'
-                            });
                             this.updateSystemUserVisible=false;
-                            this.loadList();
+                            let currentSystemUser=JSON.parse(localStorage.getItem("currentSystemUser"));
+                            if (this.systemUserForm.id==currentSystemUser.userId){
+                                this.$message({
+                                    message: "操作成功,需重新登录当前用户！",
+                                    type: 'success'
+                                });
+                                localStorage.removeItem("currentUser");
+                                localStorage.removeItem("token");
+                                this.$router.push("/login");
+                            }else{
+                                this.$message({
+                                    message: res.data.msg,
+                                    type: 'success'
+                                });
+                                this.loadList();
+                            }
+
                         }else{
                             this.$message.error(res.data.msg);
                         }

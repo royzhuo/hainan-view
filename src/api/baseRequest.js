@@ -23,6 +23,9 @@ function baseRequest(interfaceUrl,param,method,callback) {
             localStorage.removeItem("currentUser");
             localStorage.removeItem("token");
             router.push('/login');
+        }else if(res.data.code=="403"){
+            Message.error(res.data.msg);
+            callback(res);
         }else{
             callback(res);
         }

@@ -43,4 +43,25 @@ function batchDeleteSystemUser(ids,callback) {
     })
 }
 
-export {systemUserList,addSystemUser,updateSystemUser,deleteSystemUser,batchDeleteSystemUser}
+function updateSystemUserPassword(oldPassword,newPassword,callback) {
+    let params={"oldPassword":oldPassword,"newPassword":newPassword};
+    params=qs.stringify(params);
+    let url="/manager/api/sysUser/updatePassword";
+    baseRequest(url,params,"POST",res=>{
+        callback(res);
+    })
+
+}
+
+function initPassword(userId,callback) {
+    let params={"userId":userId};
+    params=qs.stringify(params);
+    let url="/manager/api/sysUser/initPassword";
+    baseRequest(url,params,"POST",res=>{
+        callback(res);
+    })
+
+}
+
+export {systemUserList,addSystemUser,updateSystemUser,deleteSystemUser,
+    batchDeleteSystemUser,updateSystemUserPassword,initPassword}
