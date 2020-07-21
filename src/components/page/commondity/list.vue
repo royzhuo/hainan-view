@@ -15,7 +15,7 @@
                         @click="batchDelete"
                 >批量删除
                 </el-button>
-                <el-input placeholder="商品名称" v-model="keyword" class="handle-input mr10"></el-input>
+                <el-input placeholder="商品编号或者商品名称" v-model="keyword" class="handle-input mr10"></el-input>
                 <el-select v-model="value" placeholder="商品类型" class="mr10">
                     <el-option
                             v-for="item in options"
