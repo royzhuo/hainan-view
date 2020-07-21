@@ -1,4 +1,7 @@
-export const baseUrl = process.env.NODE_ENV === 'production'?'http://47.104.176.42:9100':'http://localhost:9000'
+export const baseUrl = process.env.NODE_ENV === 'production'?'http://47.104.176.42:9100':'http://localhost:9000';
+
+export const getRequest="GET";
+export const postRequest='POST';
 
 import { Loading } from 'element-ui';
 

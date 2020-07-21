@@ -1,5 +1,6 @@
 import {baseRequest,uploadFile} from "../baseRequest";
 import qs from 'qs';
+import {getRequest} from "../base";
 
 function systemMenuList(keyword,callback) {
     //获取系统菜单列表
@@ -43,4 +44,12 @@ function batchDeleteSystemMenu(ids,callback) {
     })
 }
 
-export {systemMenuList,addSystemMenu,batchDeleteSystemMenu,deleteSystemMenu,updateSystemMenu}
+function listMenusForSlider(callback) {
+    let url="/manager/api/systemMenu/listMenusForSlider";
+    baseRequest(url,null,getRequest,res=>{
+        callback(res);
+    })
+}
+
+export {systemMenuList,addSystemMenu,batchDeleteSystemMenu,
+    deleteSystemMenu,updateSystemMenu,listMenusForSlider}

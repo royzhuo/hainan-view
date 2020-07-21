@@ -44,6 +44,7 @@
 <script>
 import bus from "../common/bus";
 import {getSysmenu} from '../../api/api'
+import {listMenusForSlider} from "../../api/system/systemMenu";
 export default {
   data() {
     return {
@@ -55,7 +56,7 @@ export default {
           index: "dashboard",
           title: "系统首页"
         },*/
-        {
+/*        {
           icon: "el-icon-box",
           index: "commodity",
           title: "商品管理"
@@ -87,7 +88,7 @@ export default {
               title: "菜单权限管理"
             },
           ]
-        },
+        },*/
         /* {
           icon: "el-icon-lx-cascades",
           index: "table",
@@ -226,6 +227,38 @@ export default {
           });
         }.bind(this)
       );*/
+        listMenusForSlider(res=>{
+          if (res.data.code=='0'){
+            let data=res.data.data;
+            data.forEach((val,index)=>{
+              let systemItem = {};
+              systemItem.icon = val.icon;
+              systemItem.index=val.url;
+              systemItem.title=val.menuName;
+              if (val.children!=null){
+                systemItem.subs=[];
+                this.buildChildrenMenus(systemItem,val.children);
+              }
+              menuData.push(systemItem);
+              this.items.push(systemItem);
+            });
+          }
+        })
+    },
+    buildChildrenMenus(systemItem,children){
+      if (children!=null){
+        children.forEach((childrenVal,index)=>{
+          let childSystemItem = {};
+          childSystemItem.icon = childrenVal.icon;
+          childSystemItem.index=childrenVal.url;
+          childSystemItem.title=childrenVal.menuName;
+          if (childrenVal.children!=null){
+            childSystemItem.subs=[];
+            this.buildChildrenMenus(childSystemItem,childrenVal.children);
+          }
+          systemItem.subs.push(childSystemItem);
+        });
+      }
     }
   },
   computed: {
