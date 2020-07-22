@@ -31,6 +31,11 @@ export default new Router({
                     meta:{title:"微信用户管理"}
                 },
                 {
+                    path:'/wxUserBirthday',
+                    component: resolve => require(['../components/page/openUser/birth-list.vue'], resolve),
+                    meta:{title:"微信用户生日"}
+                },
+                {
                     path: '/icon',
                     component: resolve => require(['../components/page/Icon.vue'], resolve),
                     meta: { title: '自定义图标' }

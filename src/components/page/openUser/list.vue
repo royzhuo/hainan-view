@@ -17,188 +17,196 @@
                 </el-button>
                 <el-input placeholder="用户名称" v-model="keyword" class="handle-input mr10"></el-input>
                 <el-button type="primary" @click="searchUsers" icon="el-icon-search">搜索</el-button>
-
-                <!--列表-->
-                <el-table
-                        ref="multipleTable"
-                        tooltip-effect="dark"
-                        :data="openUsers"
-                        style="width: 100%"
-                        @selection-change="handleSelectionChange"
-                        v-loading="isShowloading"
-                        border
-                >
-                    <el-table-column
-                            type="selection"
-                            width="55">
-                    </el-table-column>
-                    <el-table-column label="用户头像" align="center">
-                        　　<template slot-scope="scope">
-                        　　　　<img :src="scope.row.avatarurl" width="100%" height="50" class="head_pic"/>
-                        　　</template>
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            prop="name"
-                            label="用户名"
-                            width="120">
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            prop="nickname"
-                            label="昵称"
-                            width="120">
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            prop="birthday"
-                            label="生日"
-                            show-overflow-tooltip>
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            prop="gallery"
-                            :formatter="formatSex"
-                            label="性别"
-                            show-overflow-tooltip>
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            prop="country"
-                            label="所在国家"
-                            show-overflow-tooltip>
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            prop="province"
-                            label="省份"
-                            show-overflow-tooltip>
-                    </el-table-column>
-                    <el-table-column
-                            align="center"
-                            prop="city"
-                            label="城市"
-                            show-overflow-tooltip>
-                    </el-table-column>
-                    <el-table-column
-                            width="140"
-                            align="center"
-                            prop="createtime"
-                            label="创建日期"
-                    >
-                    </el-table-column>
-                    <el-table-column label="操作" width="140" align="center">
-                        <template slot-scope="scope">
-                            <el-button
-                                    type="primary"
-                                    icon="el-icon-edit"
-                                    circle
-                                    @click="handleEdit(scope.$index, scope.row)"
-                            ></el-button>
-                            <el-button
-                                    type="primary"
-                                    icon="el-icon-delete"
-                                    circle
-                                    @click="handleDelete(scope.$index, scope.row)"
-                            ></el-button>
-                        </template>
-                    </el-table-column>
-                </el-table>
-                <!--分页-->
-                <div class="pagination">
-                    <el-pagination
-                            @size-change="handleSizeChange"
-                            @current-change="handleCurrentChange"
-                            background
-                            layout="total,prev, pager, next, jumper"
-                            :total="total"
-                            :page-size="this.pageSize"
-                    >
-                    </el-pagination>
-                </div>
-                <!--用户页面-->
-                <el-dialog title="编辑人员信息" :visible.sync="updateOpenUserDialogVisible"  v-dialogDrag>
-                    <el-form :model="openUserForm"  ref="addOpenUserForm">
-                        <el-form-item label="头像地址" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.avatarurl" :disabled="true" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="用户名" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.name" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="昵称" :label-width="formLabelWidth">
-                            <el-input v-model="openUserForm.nickname" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="性别" :label-width="formLabelWidth" >
-                            <el-radio-group v-model="openUserForm.gallery" size="medium">
-                                <el-radio border label="1">男</el-radio>
-                                <el-radio border label="2">女</el-radio>
-                            </el-radio-group>
-                        </el-form-item>
-                        <el-form-item label="生日" :label-width="formLabelWidth" >
-                            <el-date-picker
-                                    v-model="openUserForm.birthday"
-                                    type="date"
-                                    value-format="yyyy-MM-dd"
-                                    placeholder="选择日期">
-                            </el-date-picker>
-                        </el-form-item>
-                        <el-form-item label="国家" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.country" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="省份" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.province" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="城市" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.city" autocomplete="off"></el-input>
-                        </el-form-item>
-                    </el-form>
-                    <div slot="footer" class="dialog-footer">
-                        <el-button @click="updateOpenUserDialogVisible = false">取 消</el-button>
-                        <el-button type="primary" @click="submitUpdate('addOpenUserForm')">确 定</el-button>
-                    </div>
-                </el-dialog>
-                <!--编辑用户页面-->
-                <el-dialog title="编辑人员信息" :visible.sync="updateOpenUserDialogVisible"  v-dialogDrag>
-                    <el-form :model="openUserForm"  ref="addOpenUserForm">
-                        <el-form-item label="头像地址" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.avatarurl" :disabled="true" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="用户名" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.name" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="昵称" :label-width="formLabelWidth">
-                            <el-input v-model="openUserForm.nickname" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="性别" :label-width="formLabelWidth" >
-                            <el-radio-group v-model="openUserForm.gallery" size="medium">
-                                <el-radio border label="1">男</el-radio>
-                                <el-radio border label="2">女</el-radio>
-                            </el-radio-group>
-                        </el-form-item>
-                        <el-form-item label="生日" :label-width="formLabelWidth" >
-                            <el-date-picker
-                                    v-model="openUserForm.birthday"
-                                    type="date"
-                                    value-format="yyyy-MM-dd"
-                                    placeholder="选择日期">
-                            </el-date-picker>
-                        </el-form-item>
-                        <el-form-item label="国家" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.country" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="省份" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.province" autocomplete="off"></el-input>
-                        </el-form-item>
-                        <el-form-item label="城市" :label-width="formLabelWidth" >
-                            <el-input v-model="openUserForm.city" autocomplete="off"></el-input>
-                        </el-form-item>
-                    </el-form>
-                    <div slot="footer" class="dialog-footer">
-                        <el-button @click="updateOpenUserDialogVisible = false">取 消</el-button>
-                        <el-button type="primary" @click="submitUpdate('addOpenUserForm')">确 定</el-button>
-                    </div>
-                </el-dialog>
             </div>
+            <!--列表-->
+            <el-table
+                    ref="multipleTable"
+                    tooltip-effect="dark"
+                    :data="openUsers"
+                    style="width: 100%"
+                    @selection-change="handleSelectionChange"
+                    v-loading="isShowloading"
+                    border
+            >
+                <el-table-column
+                        type="selection"
+                        width="55">
+                </el-table-column>
+                <el-table-column label="用户头像" align="center">
+                    　　<template slot-scope="scope">
+                    　　　　<img :src="scope.row.avatarurl" width="100%" height="50" class="head_pic"/>
+                    　　</template>
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="name"
+                        label="用户名"
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="nickname"
+                        label="昵称"
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="birthday"
+                        label="生日"
+                        show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="gallery"
+                        :formatter="formatSex"
+                        label="性别"
+                        show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="country"
+                        label="所在国家"
+                        show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="province"
+                        label="省份"
+                        show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="city"
+                        label="城市"
+                        show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                        align="center"
+                        prop="detailAddress"
+                        label="详细地址"
+                        show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                        width="140"
+                        align="center"
+                        prop="createtime"
+                        label="创建日期"
+                >
+                </el-table-column>
+                <el-table-column label="操作" width="140" align="center">
+                    <template slot-scope="scope">
+                        <el-button
+                                type="primary"
+                                icon="el-icon-edit"
+                                circle
+                                @click="handleEdit(scope.$index, scope.row)"
+                        ></el-button>
+                        <el-button
+                                type="primary"
+                                icon="el-icon-delete"
+                                circle
+                                @click="handleDelete(scope.$index, scope.row)"
+                        ></el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!--分页-->
+            <div class="pagination">
+                <el-pagination
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        background
+                        layout="total,prev, pager, next, jumper"
+                        :total="total"
+                        :page-size="this.pageSize"
+                >
+                </el-pagination>
+            </div>
+            <!--用户页面-->
+            <el-dialog title="编辑人员信息" :visible.sync="updateOpenUserDialogVisible"  v-dialogDrag>
+                <el-form :model="openUserForm"  ref="addOpenUserForm">
+                    <el-form-item label="头像地址" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.avatarurl" :disabled="true" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="用户名" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.name" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="昵称" :label-width="formLabelWidth">
+                        <el-input v-model="openUserForm.nickname" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="性别" :label-width="formLabelWidth" >
+                        <el-radio-group v-model="openUserForm.gallery" size="medium">
+                            <el-radio border label="1">男</el-radio>
+                            <el-radio border label="2">女</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="生日" :label-width="formLabelWidth" >
+                        <el-date-picker
+                                v-model="openUserForm.birthday"
+                                type="date"
+                                value-format="yyyy-MM-dd"
+                                placeholder="选择日期">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="国家" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.country" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="省份" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.province" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="城市" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.city" autocomplete="off"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="updateOpenUserDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="submitUpdate('addOpenUserForm')">确 定</el-button>
+                </div>
+            </el-dialog>
+            <!--编辑用户页面-->
+            <el-dialog title="编辑人员信息" :visible.sync="updateOpenUserDialogVisible"  v-dialogDrag>
+                <el-form :model="openUserForm"  ref="addOpenUserForm">
+                    <el-form-item label="头像地址" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.avatarurl" :disabled="true" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="用户名" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.name" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="昵称" :label-width="formLabelWidth">
+                        <el-input v-model="openUserForm.nickname" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="性别" :label-width="formLabelWidth" >
+                        <el-radio-group v-model="openUserForm.gallery" size="medium">
+                            <el-radio border label="1">男</el-radio>
+                            <el-radio border label="2">女</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="生日" :label-width="formLabelWidth" >
+                        <el-date-picker
+                                v-model="openUserForm.birthday"
+                                type="date"
+                                value-format="yyyy-MM-dd"
+                                placeholder="选择日期">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="国家" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.country" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="省份" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.province" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="城市" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.city" autocomplete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="详细地址" :label-width="formLabelWidth" >
+                        <el-input v-model="openUserForm.detailAddress" autocomplete="off"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="updateOpenUserDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="submitUpdate('addOpenUserForm')">确 定</el-button>
+                </div>
+            </el-dialog>
         </div>
     </div>
 </template>
@@ -330,6 +338,9 @@
 </script>
 
 <style scoped>
+    .handle-box {
+        margin-bottom: 20px;
+    }
     .handle-input {
         width: 300px;
         display: inline-block;
