@@ -14,7 +14,7 @@
     "cross-env": "^7.0.2",
     "echarts": "^4.2.1",
     "element-ui": "^2.13.2",
-    "mavon-editor": "^2.6.17",
+    "mavon-editor": "^2.8.2",
     "mockjs": "^1.0.1-beta3",
     "qs": "^6.9.4",
     "vue": "^2.5.21",
